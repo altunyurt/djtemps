@@ -1,0 +1,35 @@
+djtemps aims to ease  Django - Jinja2 templates integration. 
+
+Usage:
+------------------------------------------------------------
+
+Simply add the following line to your imports:
+
+    from djtemps import render_to_response
+
+and you're done. 
+
+Ifyou want to use additional filters, extensions or methods within your templates
+add any of the following lines to your settings.py 
+
+
+    JINJA_EXTENSIONS = ['name.of.your.extension.module1', 'name.of.your.extension.module2.' ... ]
+    JINJA_FILTERS = ['name.of.your.filter.method1', ...]
+    JINJA_METHODS = ['name.of.your.method', ...]
+
+
+names must be strings, in module name format. such as 
+        
+    JINJA_METHODS = ['djtemps.jinja_methods.enum', 'djtemps.jinja_methods.url_for', 
+                        'djtemps.jinja_methods.pagination', 'djtemps.jinja_methods.logger']
+
+By the way djtemps provides the 4 method above by default, just state them in your settings file
+as mentioned. Methods are plain python functions. For filter and extension structure,  you'll need 
+to look at the jinja documents. 
+
+If you want to enable translations in jinja2 templates, copy the management directory in this package 
+to your apps' directory (your_project/app/management) as a whole and issue the following command 
+(for french ie):
+
+    ./manage.py makemessages -l fr -e .jinja
+

@@ -1,0 +1,1 @@
+from jinja_extend import render_to_string, render_to_response

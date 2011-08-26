@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup(name='djtemp',
+setup(name='djtemps',
       version='0.1',
       description='Django - Jinja2 Templates Integration',
       author='Ozgur Sefik Altunyurt',

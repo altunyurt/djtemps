@@ -7,16 +7,22 @@ Simply add the following line to your imports:
 
     from djtemps import render_to_response
 
-and you're done. 
+and you're done. You can use it just as django's render_to_response.
+
+I simply use it as:
+   
+    def view(request):
+        ...
+        return render_to_response(template_name, locals())
+This way all local variables including request are passed to render_to_response 
+method. Implicit, yet handy when your scope is not much polluted.
 
 Ifyou want to use additional filters, extensions or methods within your templates
 add any of the following lines to your settings.py 
 
-
     JINJA_EXTENSIONS = ['name.of.your.extension.module1', 'name.of.your.extension.module2.' ... ]
     JINJA_FILTERS = ['name.of.your.filter.method1', ...]
     JINJA_METHODS = ['name.of.your.method', ...]
-
 
 names must be strings, in module name format. such as 
         
@@ -24,12 +30,26 @@ names must be strings, in module name format. such as
                         'djtemps.jinja_methods.pagination', 'djtemps.jinja_methods.logger']
 
 By the way djtemps provides the 4 method above by default, just state them in your settings file
-as mentioned. Methods are plain python functions. For filter and extension structure,  you'll need 
-to look at the jinja documents. 
+as mentioned. 
 
-If you want to enable translations in jinja2 templates, copy the management directory in this package 
-to your apps' directory (your_project/app/management) as a whole and issue the following command 
-(for french ie):
+Shortly: 
+ - enum is enumerate starting from 1 instead of 0, not really sure why i needed it
+ - url_for is identical to url_for in django templates . usage: {{ url_for ('url_name', args, kwargs) }}
+ - pagination is a simple pagination method. usage: {{ pagination(page_obj, request, num_items_per_page) }}
+ - logger is a logging instance enabling logging in templates. usage: {{ logger.debug('Debug message')}}
 
-    ./manage.py makemessages -l fr -e .jinja
+Methods are plain python functions. For filter and extension structure,  you'll need 
+to have a look at the jinja2 documents. 
+
+If you want to enable translations in jinja2 templates:
+
+ - copy the management directory in this package to your apps' directory (your_project/app/management) as a whole
+ - add translation blocks to your jinja2 templates 
+
+    {% trans %} text to be translated {% endtrans %} 
+ 
+ - issue the makemessages command as usual. If you use another extension for your jinja templates , declare it with 
+"-e extension" parameter. For example I use .jinja extension for my templates. 
+
+    ./manage.py makemessages -l lang_code -e .jinja
 

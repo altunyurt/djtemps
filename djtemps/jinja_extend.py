@@ -82,15 +82,16 @@ class JinjaRenderer(object):
         
         mimetype = mimetype or self.default_mimetype
         template = self.env.get_template(filename)
-        request = context.get('request')
-    
+
         for d in context_instance.dicts:
             _context.update(d)
-    
-        for d in RequestContext(request, context):
-            _context.update(d)
-    
-        _context.update({'user':request.user})
+
+        request = context.get('request')
+        if request:
+            for d in RequestContext(request, context):
+                _context.update(d)
+            _context.update({'user':request.user})
+
         _context.update(self.additional_context)
         return template.render(**_context)
     

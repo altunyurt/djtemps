@@ -86,11 +86,13 @@ class JinjaRenderer(object):
         for d in context_instance.dicts:
             _context.update(d)
 
-        request = context.get('request')
+        request = context.pop('request', None)
         if request:
             for d in RequestContext(request, context):
                 _context.update(d)
             _context.update({'user':request.user})
+
+        _context.update(context)
 
         _context.update(self.additional_context)
         return template.render(**_context)

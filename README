@@ -1,55 +1,78 @@
-djtemps aims to ease  Django - Jinja2 templates integration. 
+Djtemps aims to ease  Django - Jinja2 templates integration.
 
 Usage:
-------------------------------------------------------------
 
-Simply add the following line to your imports:
+Simply add the following line to your imports::
 
     from djtemps import render_to_response
 
-and you're done. You can use it just as django's render_to_response.
+or
 
-I simply use it as:
-   
+    from djtemps import render_to_string
+
+and you're done. You can use both just the same as django's render_to_response,
+such as
+
+    ...
+    return render_to_response(filename, context, request_context, mimetype)
+
+I simply use it as::
+
     def view(request):
         ...
         return render_to_response(template_name, locals())
-This way all local variables including request are passed to render_to_response 
+
+This way all local variables including request context are passed to render_to_response
 method. Implicit, yet handy when your scope is not much polluted.
 
+
 Ifyou want to use additional filters, extensions or methods within your templates
-add any of the following lines to your settings.py 
+add any of the following lines to your settings.py::
 
     JINJA_EXTENSIONS = ['name.of.your.extension.module1', 'name.of.your.extension.module2.' ... ]
     JINJA_FILTERS = ['name.of.your.filter.method1', ...]
     JINJA_METHODS = ['name.of.your.method', ...]
 
-names must be strings, in module name format. such as 
-        
-    JINJA_METHODS = ['djtemps.jinja_methods.enum', 'djtemps.jinja_methods.url_for', 
+names must be strings, in module name format. such as::
+
+    JINJA_METHODS = ['djtemps.jinja_methods.enum', 'djtemps.jinja_methods.url_for',
                         'djtemps.jinja_methods.pagination', 'djtemps.jinja_methods.logger']
 
 By the way djtemps provides the 4 method above by default, just state them in your settings file
-as mentioned. 
+as mentioned.
 
-Shortly: 
+Shortly:
  - enum is enumerate starting from 1 instead of 0, not really sure why i needed it
  - url_for is identical to url_for in django templates . usage: {{ url_for ('url_name', args, kwargs) }}
  - pagination is a simple pagination method. usage: {{ pagination(page_obj, request, num_items_per_page) }}
  - logger is a logging instance enabling logging in templates. usage: {{ logger.debug('Debug message')}}
 
-Methods are plain python functions. For filter and extension structure,  you'll need 
-to have a look at the jinja2 documents. 
+Methods are plain python functions. For filter and extension structure,  you'll need
+to have a look at the jinja2 documents.
+
+There are two extensions in the package for now:
+ 1. CsrfExtension providing csrf_token  for using tokens in forms. Simply put it into your form structure, such as:
+
+    <form method="...>
+    {% csrf_token %}
+    ...
+    </form>
+ and you're done. Credit goes to http://djangosnippets.org/snippets/1847/
+
+
+ 2. Markdown2 extension for enabling markdown2 support in templates. For credits and usage details please refer to http://www.silassewell.com/blog/2010/05/
+
 
 If you want to enable translations in jinja2 templates:
 
  - copy the management directory in this package to your apps' directory (your_project/app/management) as a whole
- - add translation blocks to your jinja2 templates 
+ - add translation blocks to your jinja2 templates::
 
-    {% trans %} text to be translated {% endtrans %} 
- 
- - issue the makemessages command as usual. If you use another extension for your jinja templates , declare it with 
-"-e extension" parameter. For example I use .jinja extension for my templates. 
+    {% trans %} text to be translated {% endtrans %}
+
+ - issue the makemessages command as usual. If you use another extension for your jinja templates , declare it with
+"-e extension" parameter. For example I use .jinja extension for my templates::
 
     ./manage.py makemessages -l lang_code -e .jinja
 
+ 

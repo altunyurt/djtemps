@@ -68,7 +68,7 @@ def pagination(page, req=None, step=10):
     if page.has_previous():
         prev_link = u"<li class='previous'><a href='%s'>« %s </a></li>\n" % (_addPageNumToRequest(page.previous_page_number(), req), _('Previous'))
 
-    next_link = u"<li class='next disabled'></li>\n" % _('Next') 
+    next_link = u"<li class='next disabled'>%s</li>\n" % _('Next') 
     if page.has_next():
         next_link = u"<li class='next'><a href='%s'> » %s </a></li>\n" % ( _addPageNumToRequest(page.next_page_number(), req), _('Next'))
 

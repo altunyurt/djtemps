@@ -90,7 +90,7 @@ class JinjaRenderer(object):
         if request:
             for d in RequestContext(request, context):
                 _context.update(d)
-            _context.update({'user':request.user})
+            _context.update({'request':request})
 
         _context.update(context)
 

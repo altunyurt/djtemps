@@ -23,20 +23,20 @@ def enum(l):
         i += 1
 
 
-def _addPageNumToRequest(pagenum, request):
-    req = '?page=%s' % pagenum
+def _addPageNumToRequest(pagenum, request, identifier="page"):
+    req = '?%s=%s' % (identifier, pagenum)
     if request:
-        req += "&".join(["%s=%s" % (key, val) for key, val in request.GET.items() if key != 'page'])
+        req += "&".join(["%s=%s" % (key, val) for key, val in request.GET.items() if key != identifier])
     return req
 
-def ipag(number, i, req=None):
+def ipag(number, i, req=None, identifier='page'):
     ''' inner pagination '''
     if number == i:
-        return "<li class='currentpage'><a href='%s'>%d</a></li>\n" % (_addPageNumToRequest(i, req),i) 
-    return "<li><a href='%s'>%d</a></li>\n" % (_addPageNumToRequest(i, req),i) 
+        return "<li class='currentpage'><a href='%s'>%d</a></li>\n" % (_addPageNumToRequest(i, req, identifier),i) 
+    return "<li><a href='%s'>%d</a></li>\n" % (_addPageNumToRequest(i, req, identifier),i) 
 
-def pagination(page, req=None, step=10):
-    ''' simple pagination code
+def pagination(page, req=None, step=10, identifier='page'):
+    ''' simple horrendous pagination code :'
         usage: {{ pagination(page_obj, request, step)}}
     '''
     total = page.paginator.num_pages
@@ -44,8 +44,8 @@ def pagination(page, req=None, step=10):
     if total == 1:
         return ""
 
-    first = ipag(page.number, 1, req)
-    last = ipag(page.number, total, req)
+    first = ipag(page.number, 1, req, identifier)
+    last = ipag(page.number, total, req, identifier)
 
     tail = head = ""
 
@@ -66,11 +66,13 @@ def pagination(page, req=None, step=10):
 
     prev_link = u"<li class='previous disabled'>%s</li>\n" %  _('Previous')
     if page.has_previous():
-        prev_link = u"<li class='previous'><a href='%s'>« %s </a></li>\n" % (_addPageNumToRequest(page.previous_page_number(), req), _('Previous'))
+        prev_link = u"<li class='previous'><a href='%s'>« %s </a></li>\n" % \
+        (_addPageNumToRequest(page.previous_page_number(), req, identifier), _('Previous'))
 
     next_link = u"<li class='next disabled'>%s</li>\n" % _('Next') 
     if page.has_next():
-        next_link = u"<li class='next'><a href='%s'> » %s </a></li>\n" % ( _addPageNumToRequest(page.next_page_number(), req), _('Next'))
+        next_link = u"<li class='next'><a href='%s'> » %s </a></li>\n" % \
+                ( _addPageNumToRequest(page.next_page_number(), req, identifier), _('Next'))
 
     return u"<ul id='pagination' class='horizontal'>%s%s%s%s%s%s%s</ul>" %(prev_link, first, head, data, tail, last, next_link)
 

@@ -23,92 +23,68 @@ def enum(l):
         i += 1
 
 
-def _addPageNumToRequest(pagenum, request, identifier="page"):
-    req = '?%s=%s' % (identifier, pagenum)
-    if request:
-        req += "&".join(["%s=%s" % (key, val) for key, val in request.GET.items() if key != identifier])
-    return req
+'''
+    sayfa sayısı == 1 ise pagination yok
+    sayfa sayısı > 1 ise 
+        - start = 1
+        - end = page.num
+        - step = display step , her zaman current page - step/2, current_page + step/2
+'''
 
-def ipag(number, i, req=None, identifier='page'):
-    ''' inner pagination '''
-    if number == i:
-        return "<li class='currentpage'><a href='%s'>%d</a></li>\n" % (_addPageNumToRequest(i, req, identifier),i) 
-    return "<li><a href='%s'>%d</a></li>\n" % (_addPageNumToRequest(i, req, identifier),i) 
 
-def pagination(page, req=None, step=10, identifier='page'):
-    ''' simple horrendous pagination code :'
-        usage: {{ pagination(page_obj, request, step)}}
-    '''
-    total = page.paginator.num_pages
+def pagination(page, req=None, step=3, identifier='page', element="li", 
+               current_class = "pagination_current", next_prev_class="pagination_next_prev",
+              previous="Previous", next="Next"):
 
-    if total == 1:
-        return ""
+    first = 1
+    last = page.paginator.num_pages
+    current = page.number 
 
-    first = ipag(page.number, 1, req, identifier)
-    last = ipag(page.number, total, req, identifier)
+    if first == last:
+        return ''
+    
+    #ranges, left_r = current-step -> current , right_r = current -> current + step
+    left_r = current > first + step and current - step or 1
+    right_r = current < last - step and step + current or last
+    p_range = range(left_r, right_r + 1)
 
-    tail = head = ""
 
-    end = total - 1
-    start = 2
+    def req_str(j):
+        rs = "&".join(["%s=%s" % (key, val) for key, val in req.GET.items() if key != identifier])
+        return rs and "?%s&%s=%s" % (rs, identifier, j) or "?%s=%s" % (identifier, j)
 
-    if page.number >= 2 + step:
-        start = page.number - step
-        head += '<li><span class="more" rel="%d-%d">...</span></li>\n' % (2, start)
+    
+    pagination_str = ""
 
-    if page.number <= end - step:
-        end = page.number + step
-        tail += '<li><span class="more" rel="%d-%d">...</span></li>\n' % (end, total-1)
+    if first not in p_range:
+        pagination_str += '<%s><a href="%s">1</a></%s><%s>..</%s>' % (element, req_str(first), element, element, element)
+    
+    for i in p_range:
+        if i == current:
+            pagination_str += '<%s class="%s"><a href="%s">%d</a></%s>' % (element, current_class, req_str(i), i, element)
+            continue
 
-    data  = ''
-    for i in range(start, end + 1):
-         data += ipag(page.number, i, req)
+        pagination_str += '<%s><a href="%s">%d</a></%s>' % (element, req_str(i), i, element)
 
-    prev_link = u"<li class='previous disabled'>%s</li>\n" %  _('Previous')
+    if last not in p_range:
+        pagination_str += '<%s>..</%s><%s><a href="%s">%s</a></%s>' % (element, element, element, req_str(last),
+                                                                   last,  element,)
+
+    
     if page.has_previous():
-        prev_link = u"<li class='previous'><a href='%s'>« %s </a></li>\n" % \
-        (_addPageNumToRequest(page.previous_page_number(), req, identifier), _('Previous'))
-
-    next_link = u"<li class='next disabled'>%s</li>\n" % _('Next') 
+        pagination_str = '<%s><a href="%s">%s</a></%s>%s' % (element,req_str(page.previous_page_number()),
+                                                             previous, element, pagination_str)
+    else:
+        pagination_str = '<%s>%s</%s>%s' % (element,previous,  element, pagination_str)
+   
     if page.has_next():
-        next_link = u"<li class='next'><a href='%s'> » %s </a></li>\n" % \
-                ( _addPageNumToRequest(page.next_page_number(), req, identifier), _('Next'))
+        pagination_str = '%s<%s><a href="%s">%s</a></%s>' % (pagination_str, element,req_str(page.next_page_number()),
+                                                             next, element)
+    else:
+        pagination_str = '%s<%s>%s</%s>' % (pagination_str, element, next,  element)
 
-    return u"<ul id='pagination' class='horizontal'>%s%s%s%s%s%s%s</ul>" %(prev_link, first, head, data, tail, last, next_link)
+    return pagination_str
 
 
-def plain_pagination(curr, total, req=None, step=10):
 
-    if total == 1:
-        return ""
-
-    first = ipag(curr, 1, req)
-    last = ipag(curr, total, req)
-
-    tail = head = ""
-
-    end = total - 1
-    start = 2
-
-    if curr > 2 + step:
-        start = curr - step
-        head += '<li><span class="page_more" rel="%d-%d">...</span></li>\n' % (2, start)
-
-    if curr < end - step:
-        end = curr + step
-        tail += '<li><span class="page_more" rel="%d-%d">...</span></li>\n' % (end, total-1)
-
-    data  = ''
-    for i in range(start, end + 1):
-         data += ipag(curr, i, req)
-
-    prev_link = u"<li class='previous disabled'>previous</li>\n" 
-    if curr > 1:
-        prev_link = u"<li class='previous'><a href='%s'>« previous</a></li>\n" % _addPageNumToRequest(curr - 1, req)
-
-    next_link = u"<li class='next disabled'>next</li>\n" 
-    if curr < total:
-        next_link = u"<li class='next'><a href='%s'>next »</a></li>\n" % _addPageNumToRequest(curr + 1, req)
-
-    return u"<ul id='plain_pagination' class='horizontal'>%s%s%s%s%s%s%s</ul>" %(prev_link, first, head, data, tail, last, next_link)
 

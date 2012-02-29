@@ -3,7 +3,7 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-__all__ =  ["url_for", "enum", "pagination", "plain_pagination", 'logger']
+__all__ =  ["url_for", "enum", "pagination", 'logger']
 
 import logging
 ''' logging in templates 

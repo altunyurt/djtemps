@@ -8,7 +8,7 @@ def read(fname):
 
 setup(name='djtemps',
     version='0.1.1',
-    description='Django - Jinja2 Templates Integration',
+    description='Easy Django - Jinja2 Templates Integration',
     author='Ozgur Sefik Altunyurt',
     author_email='altunyurt@gmail.com',
     url='http://github.com/altunyurt/djtemps',

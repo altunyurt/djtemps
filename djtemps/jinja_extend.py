@@ -45,17 +45,17 @@ class JinjaRenderer(object):
     default_mimetype = getattr(settings, 'DEFAULT_CONTENT_TYPE')
     global_exts = ['jinja2.ext.i18n', 'djtemps.jinja_extensions.CsrfExtension'] + \
         getattr(settings, 'JINJA_EXTENSIONS', [])
-    
-    env = DjangoEnvironment(autoescape=False, 
-                            loader=FileSystemLoader(template_dirs, 
-                                                    encoding="utf-8"), 
+
+    env = DjangoEnvironment(autoescape=False,
+                            loader=FileSystemLoader(template_dirs,
+                                                    encoding="utf-8"),
                             extensions=global_exts)
 
     env.install_gettext_translations(translation)
-    
+
     # following are enabled in templates by default. comes handy.
-    additional_context = {'settings':settings, 
-                          'getattr':getattr, 
+    additional_context = {'settings':settings,
+                          'getattr':getattr,
                           'str': str,
                           'int': int,
                           'float': float
@@ -79,7 +79,7 @@ class JinjaRenderer(object):
 
     def render_to_string(self, filename, context={}, context_instance=Context({}), mimetype=None):
         _context = {}
-        
+
         mimetype = mimetype or self.default_mimetype
         template = self.env.get_template(filename)
 
@@ -96,14 +96,14 @@ class JinjaRenderer(object):
 
         _context.update(self.additional_context)
         return template.render(**_context)
-    
-        
-    
+
+
+
     def render_to_response(self, filename, context={}, context_instance=Context({}), mimetype=None):
         mimetype = mimetype or self.default_mimetype
         rendered = self.render_to_string(filename, context=context, context_instance=context_instance,
                                     mimetype=mimetype)
-        return HttpResponse(rendered, mimetype=mimetype)
+        return HttpResponse(rendered, content_type=mimetype)
 
 
 j = JinjaRenderer()
